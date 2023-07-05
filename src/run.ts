@@ -2,26 +2,18 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 
 function buildVitestArgs(text: string) {
-    return ['vitest', 'run', '-t', text];
+    return ['vitest run -t', text];
 }
 
-function buildCdArgs(path: string) {
-    return ['cd', path];
+export function watchInTerminal(text: string, filename: string) {
+    const terminal = vscode.window.activeTerminal || vscode.window.createTerminal(`vitest - ${text}`);
+    terminal.sendText( `cd ${path.dirname(filename)} && npx vitest -t ${text}`, true);
+    terminal.show();
 }
 
 export function runInTerminal(text: string, filename: string) {
-    const casePath = path.dirname(filename);
-    const terminal = vscode.window.createTerminal(`vitest - ${text}`);
-
-    const casePathStr = JSON.stringify(casePath);
-    const caseNameStr = JSON.stringify(text);
-
-    const cdArgs = buildCdArgs(casePathStr);
-    terminal.sendText(cdArgs.join(' '), true);
-
-    const vitestArgs = buildVitestArgs(caseNameStr);
-    const npxArgs = ['npx', ...vitestArgs];
-    terminal.sendText(npxArgs.join(' '), true);
+    const terminal = vscode.window.activeTerminal || vscode.window.createTerminal(`vitest - ${text}`);
+    terminal.sendText( `cd ${path.dirname(filename)} && npx vitest run -t ${text}`, true);
     terminal.show();
 }
 
